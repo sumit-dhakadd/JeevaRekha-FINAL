@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeeva-Rekha - Laboratory Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Login Screen -->
+        <div id="loginScreen" class="screen active">
+            <div class="container">
+                <div class="logo">
+                    <i class="fas fa-flask"></i>
+                    <h1>Jeeva-Rekha Lab</h1>
+                    <p>Laboratory Testing Dashboard</p>
+                </div>
+                
+                <form id="loginForm" class="auth-form">
+                    <h2>Lab Technician Login</h2>
+                    <p class="form-description">Enter your credentials to access the laboratory dashboard</p>
+                    <div class="input-group">
+                        <label for="email">Email</label>
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" placeholder="Enter your email" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" placeholder="Enter your password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Main Dashboard -->
+        <div id="dashboardScreen" class="screen">
+            <div class="header">
+                <h1>Laboratory Dashboard</h1>
+                <div class="header-actions">
+                    <button id="notificationsBtn" class="btn btn-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge" id="notificationCount">0</span>
+                    </button>
+                    <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+                </div>
+            </div>
+            
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <i class="fas fa-vial"></i>
+                    <h3 id="totalTests">0</h3>
+                    <p>Total Tests</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-clock"></i>
+                    <h3 id="pendingTests">0</h3>
+                    <p>Pending Tests</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-check-circle"></i>
+                    <h3 id="completedTests">0</h3>
+                    <p>Completed Tests</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-certificate"></i>
+                    <h3 id="certificatesIssued">0</h3>
+                    <p>Certificates Issued</p>
+                </div>
+            </div>
+
+            <div class="dashboard-content">
+                <div class="content-grid">
+                    <div class="card">
+                        <h3>Pending Harvests for Testing</h3>
+                        <div id="pendingHarvests" class="harvest-list">
+                            <!-- Pending harvests will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Recent Test Results</h3>
+                        <div id="recentTests" class="test-list">
+                            <!-- Recent tests will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Quality Distribution</h3>
+                        <canvas id="qualityChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="supply-chain-tracking">
+                    <h3><i class="fas fa-link"></i> Supply Chain Tracking</h3>
+                    <div class="tracking-controls">
+                        <button id="refreshSupplyChain" class="btn btn-primary">
+                            <i class="fas fa-sync"></i> Refresh
+                        </button>
+                        <button id="toggleAutoRefresh" class="btn btn-secondary">
+                            <i class="fas fa-play"></i> Auto Refresh
+                        </button>
+                    </div>
+                    <div id="supplyChainList" class="supply-chain-list">
+                        <!-- Supply chain items will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sample Registration Screen -->
+        <div id="sampleRegistrationScreen" class="screen">
+            <div class="header">
+                <button onclick="showScreen('dashboardScreen')" class="btn btn-back">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h1>Sample Registration</h1>
+            </div>
+            
+            <div class="form-container">
+                <form id="sampleRegistrationForm" class="form">
+                    <div class="form-group">
+                        <label>Harvest ID</label>
+                        <input type="text" id="harvestId" placeholder="Enter harvest ID" required>
+                        <button type="button" id="searchHarvestBtn" class="btn btn-secondary">Search</button>
+                    </div>
+                    
+                    <div id="harvestInfo" class="harvest-info hidden">
+                        <h3>Harvest Information</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label>Species:</label>
+                                <span id="harvestSpecies">-</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Quantity:</label>
+                                <span id="harvestQuantity">-</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Harvest Date:</label>
+                                <span id="harvestDate">-</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Farmer:</label>
+                                <span id="harvestFarmer">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Test Type</label>
+                        <select id="testType" required>
+                            <option value="">Select Test Type</option>
+                            <option value="purity">Purity Test</option>
+                            <option value="potency">Potency Test</option>
+                            <option value="contamination">Contamination Test</option>
+                            <option value="microbial">Microbial Test</option>
+                            <option value="heavy_metals">Heavy Metals Test</option>
+                            <option value="pesticides">Pesticides Test</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Priority</label>
+                        <select id="priority">
+                            <option value="normal">Normal</option>
+                            <option value="high">High</option>
+                            <option value="urgent">Urgent</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Expected Completion Date</label>
+                        <input type="date" id="expectedDate" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Register Sample</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Test Results Entry Screen -->
+        <div id="testResultsScreen" class="screen">
+            <div class="header">
+                <button onclick="showScreen('dashboardScreen')" class="btn btn-back">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h1>Test Results Entry</h1>
+            </div>
+            
+            <div class="form-container">
+                <form id="testResultsForm" class="form">
+                    <!-- Hidden fields for form data -->
+                    <input type="hidden" id="harvestId" name="harvestId">
+                    <input type="hidden" id="testTypeInput" name="testType">
+                    <input type="hidden" id="testIdInput" name="testId">
+                    
+                    <div class="form-group">
+                        <label>Select Test Type</label>
+                        <select id="testSelect" required>
+                            <option value="">Select a test to complete</option>
+                        </select>
+                    </div>
+                    
+                    <div id="testDetails" class="test-details hidden">
+                        <h3>Test Details</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label>Test ID:</label>
+                                <span id="testId">-</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Test Type:</label>
+                                <span id="testType">-</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Description:</label>
+                                <span id="testDescription">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Test Results</label>
+                        <div id="testParameters">
+                            <!-- Dynamic test parameters will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Quality Grade</label>
+                        <select id="qualityGrade" required>
+                            <option value="">Select Grade</option>
+                            <option value="A">Grade A (Excellent)</option>
+                            <option value="B">Grade B (Good)</option>
+                            <option value="C">Grade C (Fair)</option>
+                            <option value="D">Grade D (Poor)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Lab Notes</label>
+                        <textarea id="labNotes" rows="4" placeholder="Additional notes about the test"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Digital Signature</label>
+                        <div class="signature-container">
+                            <canvas id="signatureCanvas" width="400" height="200"></canvas>
+                            <div class="signature-actions">
+                                <button type="button" id="clearSignature" class="btn btn-secondary">Clear</button>
+                                <button type="button" id="saveSignature" class="btn btn-primary">Save Signature</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Submit Test Results</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Quality Certification Portal -->
+        <div id="certificationScreen" class="screen">
+            <div class="header">
+                <button onclick="showScreen('dashboardScreen')" class="btn btn-back">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h1>Quality Certification</h1>
+            </div>
+            
+            <div class="certification-content">
+                <div class="card">
+                    <h3>Issue New Certificate</h3>
+                    <form id="certificateForm" class="form">
+                        <div class="form-group">
+                            <label>Select Test Result</label>
+                            <select id="certificateTestSelect" required>
+                                <option value="">Select test result</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Certificate Type</label>
+                            <select id="certificateType" required>
+                                <option value="quality">Quality Certificate</option>
+                                <option value="organic">Organic Certificate</option>
+                                <option value="purity">Purity Certificate</option>
+                                <option value="safety">Safety Certificate</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Validity Period (months)</label>
+                            <input type="number" id="validityPeriod" min="1" max="24" value="12" required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Generate Certificate</button>
+                    </form>
+                </div>
+                
+                <div class="card">
+                    <h3>Certificate Verification</h3>
+                    <form id="verificationForm" class="form">
+                        <div class="form-group">
+                            <label>Certificate Number</label>
+                            <input type="text" id="certificateNumber" placeholder="Enter certificate number" required>
+                        </div>
+                        <button type="submit" class="btn btn-secondary">Verify Certificate</button>
+                    </form>
+                    
+                    <div id="verificationResult" class="verification-result hidden">
+                        <!-- Verification result will be displayed here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="bottom-nav">
+            <button class="nav-item active" onclick="showScreen('dashboardScreen')">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </button>
+            <button class="nav-item" onclick="showScreen('sampleRegistrationScreen')">
+                <i class="fas fa-plus-circle"></i>
+                <span>Register</span>
+            </button>
+            <button class="nav-item" onclick="showScreen('testResultsScreen')">
+                <i class="fas fa-clipboard-check"></i>
+                <span>Results</span>
+            </button>
+            <button class="nav-item" onclick="showScreen('certificationScreen')">
+                <i class="fas fa-certificate"></i>
+                <span>Certify</span>
+            </button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+
+
+
+

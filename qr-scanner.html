@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Scanner - Herb Supply Chain</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        .header p {
+            margin: 0;
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 40px;
+        }
+        .scan-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .scan-input {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .scan-input input {
+            padding: 15px 20px;
+            border: 2px solid #e8f4f8;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            width: 300px;
+            transition: border-color 0.3s ease;
+        }
+        .scan-input input:focus {
+            outline: none;
+            border-color: #27ae60;
+        }
+        .btn {
+            background: #27ae60;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: #219a52;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .herb-info {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e8f4f8 100%);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 1px solid #e8f4f8;
+        }
+        .herb-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .herb-header h2 {
+            color: #2c3e50;
+            margin: 0 0 10px 0;
+            font-size: 2rem;
+        }
+        .herb-header .scientific-name {
+            color: #7f8c8d;
+            font-style: italic;
+            font-size: 1.2rem;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+        .status-badge.verified {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-badge.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .info-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #e8f4f8;
+            text-align: center;
+        }
+        .info-card i {
+            font-size: 2rem;
+            color: #27ae60;
+            margin-bottom: 15px;
+        }
+        .info-card h4 {
+            color: #2c3e50;
+            margin: 0 0 10px 0;
+        }
+        .info-card p {
+            color: #7f8c8d;
+            margin: 0;
+        }
+        .supply-chain {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 1px solid #e8f4f8;
+        }
+        .supply-chain h3 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+        }
+        .timeline {
+            position: relative;
+            padding-left: 50px;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 25px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, #27ae60, #2ecc71);
+            border-radius: 2px;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 40px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 4px solid #27ae60;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -37px;
+            top: 30px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #27ae60;
+            border: 4px solid white;
+            box-shadow: 0 0 0 4px #27ae60;
+        }
+        .timeline-item.completed::before {
+            background: #27ae60;
+        }
+        .timeline-item.pending::before {
+            background: #f39c12;
+        }
+        .timeline-item h4 {
+            color: #2c3e50;
+            margin: 0 0 10px 0;
+            font-size: 1.2rem;
+        }
+        .timeline-item p {
+            color: #7f8c8d;
+            margin: 5px 0;
+        }
+        .timeline-item .date {
+            color: #27ae60;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .test-results {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 1px solid #e8f4f8;
+        }
+        .test-results h3 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .test-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #e8f4f8;
+        }
+        .test-card h4 {
+            color: #2c3e50;
+            margin: 0 0 15px 0;
+        }
+        .test-result {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        .test-result.passed {
+            background: #d4edda;
+            color: #155724;
+        }
+        .test-result.failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .certificates {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid #e8f4f8;
+        }
+        .certificates h3 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+        }
+        .cert-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .cert-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #e8f4f8;
+        }
+        .cert-card h4 {
+            color: #2c3e50;
+            margin: 0 0 15px 0;
+        }
+        .cert-status {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        .cert-status.valid {
+            background: #d4edda;
+            color: #155724;
+        }
+        .cert-status.invalid {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+        .loading.show {
+            display: block;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #27ae60;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error {
+            text-align: center;
+            padding: 40px;
+            color: #e74c3c;
+            background: #f8d7da;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+        .success {
+            text-align: center;
+            padding: 40px;
+            color: #155724;
+            background: #d4edda;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-qrcode"></i> QR Code Scanner</h1>
+            <p>Scan QR codes to view complete herb supply chain information</p>
+        </div>
+        
+        <div class="content">
+            <div class="scan-section">
+                <h2><i class="fas fa-search"></i> Enter QR Code</h2>
+                <div class="scan-input">
+                    <input type="text" id="qrInput" placeholder="Enter QR code or herb ID">
+                    <button class="btn" onclick="scanQR()">
+                        <i class="fas fa-search"></i> Scan
+                    </button>
+                </div>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Loading herb information...</p>
+            </div>
+            
+            <div class="error" id="error" style="display: none;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                <h3>Herb Not Found</h3>
+                <p>No herb found with this QR code. Please check the code and try again.</p>
+                <button class="btn" onclick="clearError()">Try Again</button>
+            </div>
+            
+            <div id="herbInfo" style="display: none;">
+                <div class="herb-info">
+                    <div class="herb-header">
+                        <h2 id="herbName">-</h2>
+                        <p class="scientific-name" id="scientificName">-</p>
+                        <span class="status-badge" id="herbStatus">-</span>
+                    </div>
+                    
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <i class="fas fa-calendar"></i>
+                            <h4>Harvest Date</h4>
+                            <p id="harvestDate">-</p>
+                        </div>
+                        <div class="info-card">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <h4>Origin</h4>
+                            <p id="origin">-</p>
+                        </div>
+                        <div class="info-card">
+                            <i class="fas fa-user"></i>
+                            <h4>Farmer</h4>
+                            <p id="farmerName">-</p>
+                        </div>
+                        <div class="info-card">
+                            <i class="fas fa-tag"></i>
+                            <h4>Batch ID</h4>
+                            <p id="batchId">-</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="supply-chain">
+                    <h3><i class="fas fa-route"></i> Supply Chain Journey</h3>
+                    <div class="timeline" id="supplyChain">
+                        <!-- Timeline will be populated here -->
+                    </div>
+                </div>
+                
+                <div class="test-results">
+                    <h3><i class="fas fa-flask"></i> Quality Test Results</h3>
+                    <div class="test-grid" id="testResults">
+                        <!-- Test results will be populated here -->
+                    </div>
+                </div>
+                
+                <div class="certificates">
+                    <h3><i class="fas fa-certificate"></i> Certificates</h3>
+                    <div class="cert-grid" id="certificates">
+                        <!-- Certificates will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check for herbId in URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const herbId = urlParams.get('herbId');
+        
+        if (herbId) {
+            document.getElementById('qrInput').value = herbId;
+            scanQR();
+        }
+
+        async function scanQR() {
+            const qrCode = document.getElementById('qrInput').value.trim();
+            if (!qrCode) {
+                alert('Please enter a QR code');
+                return;
+            }
+            
+            showLoading();
+            hideError();
+            hideHerbInfo();
+            
+            try {
+                const response = await fetch(`/api/herbs/qr/${qrCode}`);
+                if (response.ok) {
+                    const herbData = await response.json();
+                    displayHerbInfo(herbData);
+                } else {
+                    showError();
+                }
+            } catch (error) {
+                console.error('Error scanning QR code:', error);
+                showError();
+            }
+        }
+
+        function displayHerbInfo(herbData) {
+            hideLoading();
+            showHerbInfo();
+            
+            // Basic information
+            document.getElementById('herbName').textContent = herbData.name;
+            document.getElementById('scientificName').textContent = herbData.scientificName;
+            document.getElementById('harvestDate').textContent = new Date(herbData.harvestDate).toLocaleDateString();
+            document.getElementById('origin').textContent = herbData.origin;
+            document.getElementById('farmerName').textContent = herbData.farmerName;
+            document.getElementById('batchId').textContent = herbData.batchId;
+            
+            // Status
+            const statusElement = document.getElementById('herbStatus');
+            statusElement.textContent = herbData.status;
+            statusElement.className = `status-badge ${herbData.status}`;
+            
+            // Supply chain timeline
+            const supplyChainContainer = document.getElementById('supplyChain');
+            supplyChainContainer.innerHTML = herbData.supplyChain.map(step => `
+                <div class="timeline-item ${step.status}">
+                    <h4>${step.step}</h4>
+                    <p>${step.description}</p>
+                    <p class="date">${step.date ? new Date(step.date).toLocaleDateString() : 'Pending'}</p>
+                </div>
+            `).join('');
+            
+            // Test results
+            const testResultsContainer = document.getElementById('testResults');
+            if (herbData.testResults && herbData.testResults.length > 0) {
+                testResultsContainer.innerHTML = herbData.testResults.map(test => `
+                    <div class="test-card">
+                        <h4>${test.testName}</h4>
+                        <p><strong>Result:</strong> ${test.result}</p>
+                        <p><strong>Value:</strong> ${test.value} ${test.unit}</p>
+                        <p><strong>Date:</strong> ${new Date(test.date).toLocaleDateString()}</p>
+                        <span class="test-result ${test.result}">${test.result}</span>
+                    </div>
+                `).join('');
+            } else {
+                testResultsContainer.innerHTML = '<p style="text-align: center; color: #7f8c8d;">No test results available</p>';
+            }
+            
+            // Certificates
+            const certificatesContainer = document.getElementById('certificates');
+            if (herbData.certificates && herbData.certificates.length > 0) {
+                certificatesContainer.innerHTML = herbData.certificates.map(cert => `
+                    <div class="cert-card">
+                        <h4>${cert.name}</h4>
+                        <p><strong>Type:</strong> ${cert.certificateType}</p>
+                        <p><strong>Issued By:</strong> ${cert.issuedBy}</p>
+                        <p><strong>Valid Until:</strong> ${new Date(cert.validUntil).toLocaleDateString()}</p>
+                        <span class="cert-status ${cert.status}">${cert.status}</span>
+                    </div>
+                `).join('');
+            } else {
+                certificatesContainer.innerHTML = '<p style="text-align: center; color: #7f8c8d;">No certificates available</p>';
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('loading').classList.add('show');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').classList.remove('show');
+        }
+
+        function showError() {
+            document.getElementById('error').style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('error').style.display = 'none';
+        }
+
+        function showHerbInfo() {
+            document.getElementById('herbInfo').style.display = 'block';
+        }
+
+        function hideHerbInfo() {
+            document.getElementById('herbInfo').style.display = 'none';
+        }
+
+        function clearError() {
+            hideError();
+            document.getElementById('qrInput').value = '';
+        }
+
+        // Allow Enter key to scan
+        document.getElementById('qrInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                scanQR();
+            }
+        });
+    </script>
+</body>
+</html>

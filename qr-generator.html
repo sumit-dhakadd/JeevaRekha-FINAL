@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator - Herb Supply Chain</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        .header p {
+            margin: 0;
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 40px;
+        }
+        .herb-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .herb-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #e8f4f8;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .herb-card:hover {
+            border-color: #27ae60;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(39, 174, 96, 0.2);
+        }
+        .herb-card.selected {
+            border-color: #27ae60;
+            background: #e8f5e8;
+        }
+        .herb-card h3 {
+            color: #2c3e50;
+            margin: 0 0 15px 0;
+            font-size: 1.3rem;
+        }
+        .herb-card p {
+            color: #7f8c8d;
+            margin: 5px 0;
+            font-size: 0.9rem;
+        }
+        .herb-card .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        .status.verified {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .qr-section {
+            text-align: center;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 40px;
+            margin-top: 30px;
+        }
+        .qr-section h2 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .qr-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            display: inline-block;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            border: 3px solid #27ae60;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            margin: 0 auto 20px;
+        }
+        .btn {
+            background: #27ae60;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+        .btn:hover {
+            background: #219a52;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .herb-details {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            border: 1px solid #e8f4f8;
+        }
+        .herb-details h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .detail-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .detail-item label {
+            font-weight: 600;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .detail-item span {
+            color: #2c3e50;
+            font-size: 1rem;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        .loading.show {
+            display: block;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #27ae60;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-qrcode"></i> QR Code Generator</h1>
+            <p>Generate QR codes for herb products with complete supply chain information</p>
+        </div>
+        
+        <div class="content">
+            <div class="herb-selection" id="herbSelection">
+                <div class="loading show" id="loading">
+                    <div class="spinner"></div>
+                    <p>Loading herbs...</p>
+                </div>
+            </div>
+            
+            <div class="qr-section" id="qrSection" style="display: none;">
+                <h2><i class="fas fa-qrcode"></i> Generated QR Code</h2>
+                <div class="qr-container">
+                    <div class="qr-code" id="qrCode"></div>
+                    <p><strong>QR Code for:</strong> <span id="selectedHerbName"></span></p>
+                    <p><strong>QR ID:</strong> <span id="qrId"></span></p>
+                </div>
+                <button class="btn" onclick="downloadQR()">
+                    <i class="fas fa-download"></i> Download QR Code
+                </button>
+                <button class="btn btn-secondary" onclick="testQR()">
+                    <i class="fas fa-eye"></i> Test QR Code
+                </button>
+            </div>
+            
+            <div class="herb-details" id="herbDetails" style="display: none;">
+                <h3><i class="fas fa-info-circle"></i> Herb Information</h3>
+                <div class="details-grid" id="detailsGrid">
+                    <!-- Details will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedHerb = null;
+        let herbs = [];
+
+        // Load herbs on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadHerbs();
+        });
+
+        async function loadHerbs() {
+            try {
+                const response = await fetch('/api/herbs');
+                herbs = await response.json();
+                displayHerbs();
+            } catch (error) {
+                console.error('Error loading herbs:', error);
+                document.getElementById('loading').innerHTML = '<p style="color: #e74c3c;">Error loading herbs. Please try again.</p>';
+            }
+        }
+
+        function displayHerbs() {
+            const container = document.getElementById('herbSelection');
+            const loading = document.getElementById('loading');
+            
+            loading.style.display = 'none';
+            
+            if (herbs.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #7f8c8d;">No herbs available. Please add some herbs first.</p>';
+                return;
+            }
+            
+            container.innerHTML = herbs.map(herb => `
+                <div class="herb-card" onclick="selectHerb('${herb._id}')">
+                    <h3>${herb.species}</h3>
+                    <p><strong>Scientific Name:</strong> ${herb.scientificName || 'N/A'}</p>
+                    <p><strong>Variety:</strong> ${herb.variety || 'N/A'}</p>
+                    <p><strong>Origin:</strong> ${herb.origin || 'N/A'}</p>
+                    <p><strong>Harvest Date:</strong> ${new Date(herb.harvestDate).toLocaleDateString()}</p>
+                    <span class="status ${herb.status}">${herb.status}</span>
+                </div>
+            `).join('');
+        }
+
+        function selectHerb(herbId) {
+            selectedHerb = herbs.find(h => h._id === herbId);
+            
+            // Update UI
+            document.querySelectorAll('.herb-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+            
+            // Show QR section
+            document.getElementById('qrSection').style.display = 'block';
+            document.getElementById('selectedHerbName').textContent = selectedHerb.species;
+            document.getElementById('qrId').textContent = selectedHerb._id;
+            
+            // Generate QR code
+            generateQRCode();
+            
+            // Show herb details
+            showHerbDetails();
+        }
+
+        async function generateQRCode() {
+            const qrData = {
+                herbId: selectedHerb._id,
+                species: selectedHerb.species,
+                scientificName: selectedHerb.scientificName,
+                harvestDate: selectedHerb.harvestDate,
+                origin: selectedHerb.origin,
+                timestamp: new Date().toISOString()
+            };
+            
+            try {
+                const qrCodeElement = document.getElementById('qrCode');
+                await QRCode.toCanvas(qrCodeElement, JSON.stringify(qrData), {
+                    width: 200,
+                    margin: 2,
+                    color: {
+                        dark: '#27ae60',
+                        light: '#ffffff'
+                    }
+                });
+            } catch (error) {
+                console.error('Error generating QR code:', error);
+                document.getElementById('qrCode').innerHTML = '<p style="color: #e74c3c;">Error generating QR code</p>';
+            }
+        }
+
+        async function showHerbDetails() {
+            try {
+                const response = await fetch(`/api/herbs/qr/${selectedHerb._id}`);
+                const herbData = await response.json();
+                
+                document.getElementById('herbDetails').style.display = 'block';
+                
+                const detailsGrid = document.getElementById('detailsGrid');
+                detailsGrid.innerHTML = `
+                    <div class="detail-item">
+                        <label>Species</label>
+                        <span>${herbData.name}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Scientific Name</label>
+                        <span>${herbData.scientificName}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Harvest Date</label>
+                        <span>${new Date(herbData.harvestDate).toLocaleDateString()}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Origin</label>
+                        <span>${herbData.origin}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Farmer</label>
+                        <span>${herbData.farmerName}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Status</label>
+                        <span>${herbData.status}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Test Results</label>
+                        <span>${herbData.testResults.length} tests</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Certificates</label>
+                        <span>${herbData.certificates.length} certificates</span>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading herb details:', error);
+            }
+        }
+
+        function downloadQR() {
+            const canvas = document.querySelector('#qrCode canvas');
+            if (canvas) {
+                const link = document.createElement('a');
+                link.download = `herb-qr-${selectedHerb.species.replace(/\s+/g, '-')}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+            }
+        }
+
+        function testQR() {
+            if (selectedHerb) {
+                window.open(`qr-scanner.html?herbId=${selectedHerb._id}`, '_blank');
+            }
+        }
+    </script>
+</body>
+</html>

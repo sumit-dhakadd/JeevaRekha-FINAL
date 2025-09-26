@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeeva-Rekha - Supply Chain Manager</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Login Screen -->
+        <div id="loginScreen" class="screen active">
+            <div class="container">
+                <div class="logo">
+                    <i class="fas fa-network-wired"></i>
+                    <h1>Jeeva-Rekha Supply Chain</h1>
+                    <p>Supply Chain Manager Dashboard</p>
+                </div>
+                
+                <form id="loginForm" class="auth-form">
+                    <h2>Manager Login</h2>
+                    <p class="form-description">Enter your credentials to access the supply chain dashboard</p>
+                    <div class="input-group">
+                        <label for="email">Email</label>
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" placeholder="Enter your email" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" placeholder="Enter your password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Main Dashboard -->
+        <div id="dashboardScreen" class="screen">
+            <div class="header">
+                <h1>Supply Chain Dashboard</h1>
+                <div class="header-actions">
+                    <button id="notificationsBtn" class="btn btn-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge" id="notificationCount">0</span>
+                    </button>
+                    <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+                </div>
+            </div>
+            
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <i class="fas fa-boxes"></i>
+                    <h3 id="totalInventory">0</h3>
+                    <p>Total Inventory</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-truck"></i>
+                    <h3 id="activeShipments">0</h3>
+                    <p>Active Shipments</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3 id="alertsCount">0</h3>
+                    <p>Active Alerts</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h3 id="efficiency">0%</h3>
+                    <p>Chain Efficiency</p>
+                </div>
+            </div>
+
+            <div class="dashboard-content">
+                <div class="content-grid">
+                    <div class="card">
+                        <h3>Pending Harvests</h3>
+                        <div id="pendingHarvests" class="harvest-list">
+                            <!-- Pending harvests will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Recent Activities</h3>
+                        <div id="recentActivities" class="activities-list">
+                            <!-- Recent activities will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Supply Chain Overview</h3>
+                        <canvas id="supplyChainChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-time Inventory Tracking -->
+        <div id="inventoryScreen" class="screen">
+            <div class="header">
+                <button onclick="showScreen('dashboardScreen')" class="btn btn-back">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h1>Inventory Tracking</h1>
+            </div>
+            
+            <div class="inventory-content">
+                <div class="card">
+                    <h3>Inventory Search & Filter</h3>
+                    <div class="search-filters">
+                        <input type="text" id="inventorySearch" placeholder="Search inventory...">
+                        <select id="statusFilter">
+                            <option value="">All Status</option>
+                            <option value="available">Available</option>
+                            <option value="reserved">Reserved</option>
+                            <option value="shipped">Shipped</option>
+                            <option value="sold">Sold</option>
+                        </select>
+                        <select id="locationFilter">
+                            <option value="">All Locations</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>Inventory List</h3>
+                    <div id="inventoryList" class="inventory-list">
+                        <!-- Inventory items will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics and Reporting Interface -->
+        <div id="analyticsScreen" class="screen">
+            <div class="header">
+                <button onclick="showScreen('dashboardScreen')" class="btn btn-back">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h1>Analytics & Reports</h1>
+            </div>
+            
+            <div class="analytics-content">
+                <div class="card">
+                    <h3>Performance Metrics</h3>
+                    <div class="metrics-grid">
+                        <div class="metric-item">
+                            <h4>Harvest Volume</h4>
+                            <canvas id="harvestVolumeChart"></canvas>
+                        </div>
+                        <div class="metric-item">
+                            <h4>Quality Distribution</h4>
+                            <canvas id="qualityDistributionChart"></canvas>
+                        </div>
+                        <div class="metric-item">
+                            <h4>Processing Efficiency</h4>
+                            <canvas id="processingEfficiencyChart"></canvas>
+                        </div>
+                        <div class="metric-item">
+                            <h4>Supply Chain Timeline</h4>
+                            <canvas id="timelineChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>Generate Report</h3>
+                    <form id="reportForm" class="form">
+                        <div class="form-group">
+                            <label>Report Type</label>
+                            <select id="reportType" required>
+                                <option value="">Select Report Type</option>
+                                <option value="inventory">Inventory Report</option>
+                                <option value="quality">Quality Report</option>
+                                <option value="performance">Performance Report</option>
+                                <option value="compliance">Compliance Report</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Date Range</label>
+                            <div class="date-range">
+                                <input type="date" id="startDate" required>
+                                <span>to</span>
+                                <input type="date" id="endDate" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Format</label>
+                            <select id="reportFormat">
+                                <option value="pdf">PDF</option>
+                                <option value="excel">Excel</option>
+                                <option value="csv">CSV</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Generate Report</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compliance Monitoring Screen -->
+        <div id="complianceScreen" class="screen">
+            <div class="header">
+                <button onclick="showScreen('dashboardScreen')" class="btn btn-back">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h1>Compliance Monitoring</h1>
+            </div>
+            
+            <div class="compliance-content">
+                <div class="card">
+                    <h3>Compliance Status</h3>
+                    <div id="complianceStatus" class="compliance-grid">
+                        <!-- Compliance status will be loaded here -->
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>Compliance Alerts</h3>
+                    <div id="complianceAlerts" class="alerts-list">
+                        <!-- Compliance alerts will be loaded here -->
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>Audit Trail</h3>
+                    <div id="auditTrail" class="audit-list">
+                        <!-- Audit trail will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert and Notification System -->
+        <div id="alertsScreen" class="screen">
+            <div class="header">
+                <button onclick="showScreen('dashboardScreen')" class="btn btn-back">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h1>Alerts & Notifications</h1>
+            </div>
+            
+            <div class="alerts-content">
+                <div class="card">
+                    <h3>Alert Configuration</h3>
+                    <form id="alertConfigForm" class="form">
+                        <div class="form-group">
+                            <label>Alert Type</label>
+                            <select id="alertType" required>
+                                <option value="">Select Alert Type</option>
+                                <option value="inventory_low">Low Inventory</option>
+                                <option value="quality_issue">Quality Issue</option>
+                                <option value="compliance_breach">Compliance Breach</option>
+                                <option value="processing_delay">Processing Delay</option>
+                                <option value="shipment_delay">Shipment Delay</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Threshold Value</label>
+                            <input type="number" id="thresholdValue" placeholder="Enter threshold value" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Notification Method</label>
+                            <div class="notification-methods">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="notificationMethod" value="email" checked>
+                                    <span class="checkmark"></span>
+                                    Email
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="notificationMethod" value="sms">
+                                    <span class="checkmark"></span>
+                                    SMS
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="notificationMethod" value="push">
+                                    <span class="checkmark"></span>
+                                    Push Notification
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Configure Alert</button>
+                    </form>
+                </div>
+                
+                <div class="card">
+                    <h3>Active Alerts</h3>
+                    <div id="activeAlerts" class="alerts-list">
+                        <!-- Active alerts will be loaded here -->
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>Alert History</h3>
+                    <div id="alertHistory" class="alerts-list">
+                        <!-- Alert history will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="bottom-nav">
+            <button class="nav-item active" onclick="showScreen('dashboardScreen')">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </button>
+            <button class="nav-item" onclick="showScreen('inventoryScreen')">
+                <i class="fas fa-boxes"></i>
+                <span>Inventory</span>
+            </button>
+            <button class="nav-item" onclick="showScreen('analyticsScreen')">
+                <i class="fas fa-chart-bar"></i>
+                <span>Analytics</span>
+            </button>
+            <button class="nav-item" onclick="showScreen('complianceScreen')">
+                <i class="fas fa-shield-alt"></i>
+                <span>Compliance</span>
+            </button>
+            <button class="nav-item" onclick="showScreen('alertsScreen')">
+                <i class="fas fa-bell"></i>
+                <span>Alerts</span>
+            </button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+
+
+
+

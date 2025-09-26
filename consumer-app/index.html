@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeeva-Rekha - Consumer App</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Welcome Screen -->
+        <div id="welcomeScreen" class="screen active">
+            <div class="welcome-content">
+                <div class="logo">
+                    <i class="fas fa-leaf"></i>
+                    <h1>Jeeva-Rekha</h1>
+                    <p>Trace Your Herbs</p>
+                </div>
+                
+                <div class="welcome-features">
+                    <div class="feature">
+                        <i class="fas fa-qrcode"></i>
+                        <h3>QR Code Scanner</h3>
+                        <p>Scan QR codes to trace herb origin</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <h3>Interactive Map</h3>
+                        <p>See where your herbs come from</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-certificate"></i>
+                        <h3>Certificates</h3>
+                        <p>View quality certificates and test results</p>
+                    </div>
+                </div>
+                
+                <button onclick="showScreen('scannerScreen')" class="btn btn-primary btn-large">
+                    <i class="fas fa-qrcode"></i>
+                    Start Scanning
+                </button>
+            </div>
+        </div>
+
+        <!-- QR Code Scanner Interface -->
+        <div id="scannerScreen" class="screen">
+            <div class="header">
+                <button onclick="showScreen('welcomeScreen')" class="btn btn-back">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h1>QR Code Scanner</h1>
+            </div>
+            
+            <div class="scanner-content">
+                <div class="scanner-container">
+                    <div id="scanner" class="scanner">
+                        <div class="scanner-overlay">
+                            <div class="scanner-frame"></div>
+                            <p>Position QR code within the frame</p>
+                        </div>
+                    </div>
+                    
+                    <div class="scanner-actions">
+                        <button id="startScanBtn" class="btn btn-primary">
+                            <i class="fas fa-camera"></i>
+                            Start Scanning
+                        </button>
+                        <button id="stopScanBtn" class="btn btn-secondary" style="display: none;">
+                            <i class="fas fa-stop"></i>
+                            Stop Scanning
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="manual-entry">
+                    <h3>Or Enter QR Code Manually</h3>
+                    <div class="input-group">
+                        <input type="text" id="manualQRCode" placeholder="Enter QR code or herb ID">
+                        <button id="manualSearchBtn" class="btn btn-secondary">Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Herb Provenance Display -->
+        <div id="provenanceScreen" class="screen">
+            <div class="header">
+                <button onclick="showScreen('scannerScreen')" class="btn btn-back">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h1>Herb Provenance</h1>
+            </div>
+            
+            <div class="provenance-content">
+                <div class="herb-header">
+                    <div class="herb-image">
+                        <img id="herbImage" src="" alt="Herb Image">
+                    </div>
+                    <div class="herb-info">
+                        <h2 id="herbSpecies">-</h2>
+                        <p id="herbVariety">-</p>
+                        <div class="herb-status">
+                            <span id="herbStatus" class="status-badge">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="provenance-timeline">
+                    <h3>Supply Chain Timeline</h3>
+                    <div id="timeline" class="timeline">
+                        <!-- Timeline items will be loaded here -->
+                    </div>
+                </div>
+                
+                <div class="provenance-details">
+                    <div class="detail-card">
+                        <h4>Origin Information</h4>
+                        <div class="detail-item">
+                            <label>Harvest Date:</label>
+                            <span id="harvestDate">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Location:</label>
+                            <span id="harvestLocation">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Farmer:</label>
+                            <span id="farmerName">-</span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <h4>Quality Information</h4>
+                        <div class="detail-item">
+                            <label>Quality Grade:</label>
+                            <span id="qualityGrade" class="grade-badge">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Test Date:</label>
+                            <span id="testDate">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Lab:</label>
+                            <span id="labName">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Map -->
+        <div id="mapScreen" class="screen">
+            <div class="header">
+                <button onclick="showScreen('provenanceScreen')" class="btn btn-back">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h1>Origin Map</h1>
+            </div>
+            
+            <div class="map-content">
+                <div id="map" class="map-container">
+                    <!-- Map will be rendered here -->
+                </div>
+                
+                <div class="map-info">
+                    <h3>Journey Details</h3>
+                    <div id="journeySteps" class="journey-steps">
+                        <!-- Journey steps will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Certificate and Test Results View -->
+        <div id="certificateScreen" class="screen">
+            <div class="header">
+                <button onclick="showScreen('provenanceScreen')" class="btn btn-back">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h1>Certificates & Test Results</h1>
+            </div>
+            
+            <div class="certificate-content">
+                <div class="certificate-tabs">
+                    <button class="tab-btn active" onclick="showCertificateTab('quality')">
+                        <i class="fas fa-certificate"></i>
+                        Quality Certificate
+                    </button>
+                    <button class="tab-btn" onclick="showCertificateTab('test')">
+                        <i class="fas fa-flask"></i>
+                        Test Results
+                    </button>
+                    <button class="tab-btn" onclick="showCertificateTab('organic')">
+                        <i class="fas fa-leaf"></i>
+                        Organic Certificate
+                    </button>
+                </div>
+                
+                <div class="certificate-tab-content">
+                    <div id="qualityTab" class="tab-pane active">
+                        <div class="certificate-card">
+                            <div class="certificate-header">
+                                <h3>Quality Certificate</h3>
+                                <div class="certificate-number">
+                                    <label>Certificate #:</label>
+                                    <span id="qualityCertNumber">-</span>
+                                </div>
+                            </div>
+                            
+                            <div class="certificate-body">
+                                <div class="certificate-info">
+                                    <div class="info-row">
+                                        <label>Product:</label>
+                                        <span id="certProduct">-</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <label>Quality Grade:</label>
+                                        <span id="certQualityGrade" class="grade-badge">-</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <label>Issued Date:</label>
+                                        <span id="certIssuedDate">-</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <label>Valid Until:</label>
+                                        <span id="certValidUntil">-</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <label>Issued By:</label>
+                                        <span id="certIssuedBy">-</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="certificate-verification">
+                                    <h4>Digital Verification</h4>
+                                    <div class="verification-status">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Certificate Verified</span>
+                                    </div>
+                                    <div class="verification-details">
+                                        <p>This certificate has been digitally signed and verified.</p>
+                                        <p>Certificate Hash: <code id="certHash">-</code></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="testTab" class="tab-pane">
+                        <div class="test-results">
+                            <h3>Laboratory Test Results</h3>
+                            <div id="testResultsList" class="test-results-list">
+                                <!-- Test results will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="organicTab" class="tab-pane">
+                        <div class="organic-certificate">
+                            <h3>Organic Certification</h3>
+                            <div class="organic-info">
+                                <div class="info-row">
+                                    <label>Certification Body:</label>
+                                    <span id="organicCertBody">-</span>
+                                </div>
+                                <div class="info-row">
+                                    <label>Certification Number:</label>
+                                    <span id="organicCertNumber">-</span>
+                                </div>
+                                <div class="info-row">
+                                    <label>Valid From:</label>
+                                    <span id="organicValidFrom">-</span>
+                                </div>
+                                <div class="info-row">
+                                    <label>Valid Until:</label>
+                                    <span id="organicValidUntil">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Screen -->
+        <div id="historyScreen" class="screen">
+            <div class="header">
+                <button onclick="showScreen('welcomeScreen')" class="btn btn-back">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h1>Scan History</h1>
+            </div>
+            
+            <div class="history-content">
+                <div id="scanHistory" class="history-list">
+                    <!-- Scan history will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="bottom-nav">
+            <button class="nav-item active" onclick="showScreen('welcomeScreen')">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </button>
+            <button class="nav-item" onclick="showScreen('scannerScreen')">
+                <i class="fas fa-qrcode"></i>
+                <span>Scan</span>
+            </button>
+            <button class="nav-item" onclick="showScreen('mapScreen')">
+                <i class="fas fa-map"></i>
+                <span>Map</span>
+            </button>
+            <button class="nav-item" onclick="showScreen('certificateScreen')">
+                <i class="fas fa-certificate"></i>
+                <span>Certificates</span>
+            </button>
+            <button class="nav-item" onclick="showScreen('historyScreen')">
+                <i class="fas fa-history"></i>
+                <span>History</span>
+            </button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+
+
+
+

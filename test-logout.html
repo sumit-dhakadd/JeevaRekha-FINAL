@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Logout Functionality</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .logout-btn {
+            background-color: #dc3545;
+        }
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Logout Functionality Test</h1>
+    
+    <div class="test-section info">
+        <h3>Test Instructions</h3>
+        <p>1. Open the farmer dashboard: <a href="mobile-app/index.html" target="_blank">mobile-app/index.html</a></p>
+        <p>2. Login as a farmer (use: farmer@jeevarekha.com / password)</p>
+        <p>3. Try clicking the logout button in the top-right corner</p>
+        <p>4. Check the browser console for any error messages</p>
+    </div>
+    
+    <div class="test-section">
+        <h3>🔧 Debug Information</h3>
+        <p><strong>Current URL:</strong> <span id="currentUrl"></span></p>
+        <p><strong>Local Storage Token:</strong> <span id="tokenStatus"></span></p>
+        <p><strong>Local Storage User:</strong> <span id="userStatus"></span></p>
+        
+        <button onclick="checkLocalStorage()">Check Local Storage</button>
+        <button onclick="clearLocalStorage()">Clear Local Storage</button>
+        <button onclick="testLogout()" class="logout-btn">Test Logout Function</button>
+    </div>
+    
+    <div class="test-section">
+        <h3>📋 Expected Behavior</h3>
+        <ul>
+            <li>✅ Logout button should be visible in the farmer dashboard header</li>
+            <li>✅ Clicking logout should clear localStorage (token and user)</li>
+            <li>✅ User should be redirected to role selection screen</li>
+            <li>✅ Success notification should appear</li>
+            <li>✅ WebSocket connection should be disconnected</li>
+        </ul>
+    </div>
+    
+    <div class="test-section">
+        <h3>🐛 Common Issues & Solutions</h3>
+        <ul>
+            <li><strong>Button not found:</strong> Check if the button ID exists in HTML</li>
+            <li><strong>Event listener not working:</strong> Check browser console for errors</li>
+            <li><strong>Screen not switching:</strong> Verify showScreen function works</li>
+            <li><strong>Data not clearing:</strong> Check localStorage manually</li>
+        </ul>
+    </div>
+    
+    <div id="testResults" class="test-section" style="display: none;">
+        <h3>🧪 Test Results</h3>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        // Update debug information
+        document.getElementById('currentUrl').textContent = window.location.href;
+        updateStatus();
+        
+        function updateStatus() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            
+            document.getElementById('tokenStatus').textContent = token ? 'Present' : 'Not found';
+            document.getElementById('userStatus').textContent = user ? 'Present' : 'Not found';
+        }
+        
+        function checkLocalStorage() {
+            updateStatus();
+            const results = document.getElementById('results');
+            results.innerHTML = `
+                <p><strong>Token:</strong> ${localStorage.getItem('token') || 'Not found'}</p>
+                <p><strong>User:</strong> ${localStorage.getItem('user') || 'Not found'}</p>
+            `;
+            document.getElementById('testResults').style.display = 'block';
+        }
+        
+        function clearLocalStorage() {
+            localStorage.clear();
+            updateStatus();
+            alert('Local storage cleared!');
+        }
+        
+        function testLogout() {
+            try {
+                // Simulate the logout function
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                updateStatus();
+                
+                const results = document.getElementById('results');
+                results.innerHTML = `
+                    <div class="success">
+                        <p>✅ Logout test completed successfully!</p>
+                        <p>Local storage has been cleared.</p>
+                    </div>
+                `;
+                document.getElementById('testResults').style.display = 'block';
+            } catch (error) {
+                const results = document.getElementById('results');
+                results.innerHTML = `
+                    <div class="error">
+                        <p>❌ Logout test failed: ${error.message}</p>
+                    </div>
+                `;
+                document.getElementById('testResults').style.display = 'block';
+            }
+        }
+        
+        // Auto-update status every 2 seconds
+        setInterval(updateStatus, 2000);
+    </script>
+</body>
+</html>

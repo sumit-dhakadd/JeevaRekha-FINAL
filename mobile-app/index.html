@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeeva-Rekha - Farmer App</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Role Selection Screen -->
+        <div id="roleSelectionScreen" class="screen active">
+            <div class="container">
+                <div class="logo">
+                    <i class="fas fa-leaf"></i>
+                    <h1>Jeeva-Rekha</h1>
+                    <p>Herb Supply Chain Management</p>
+                </div>
+                
+                <div class="role-selection-card">
+                    <h2>Select Your Role</h2>
+                    <p class="role-subtitle">Choose your role to access the appropriate dashboard</p>
+                    
+                    <div class="role-grid">
+                        <div class="role-card" onclick="redirectToDashboard('farmer')">
+                            <i class="fas fa-seedling"></i>
+                            <h3>Farmer</h3>
+                            <p>Harvest & supply</p>
+                            <span class="role-description">Record harvests and manage crops</span>
+                        </div>
+                        
+                        <div class="role-card" onclick="redirectToDashboard('lab_technician')">
+                            <i class="fas fa-flask"></i>
+                            <h3>Laboratory</h3>
+                            <p>Quality testing</p>
+                            <span class="role-description">Test samples and generate reports</span>
+                        </div>
+                        
+                        <div class="role-card" onclick="redirectToDashboard('processor')">
+                            <i class="fas fa-cogs"></i>
+                            <h3>Processor</h3>
+                            <p>Manufacturing</p>
+                            <span class="role-description">Process herbs and manage batches</span>
+                        </div>
+                        
+                        <div class="role-card" onclick="redirectToDashboard('supply_manager')">
+                            <i class="fas fa-users"></i>
+                            <h3>Manager</h3>
+                            <p>Supply chain oversight</p>
+                            <span class="role-description">Oversee supply chain operations</span>
+                        </div>
+
+                    <div class="role-card" onclick="window.open('/consumer-app/', '_blank')">
+                        <i class="fas fa-qrcode"></i>
+                        <h3>Consumer Portal</h3>
+                        <p>Scan & verify</p>
+                        <span class="role-description">Scan QR to view provenance, tests, and certificates</span>
+                    </div>
+                        
+                        <div class="role-card" onclick="showRealtimeDashboard()">
+                            <i class="fas fa-broadcast-tower"></i>
+                            <h3>Real-time View</h3>
+                            <p>Live monitoring</p>
+                            <span class="role-description">Live supply chain monitoring</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- Real-time Dashboard -->
+        <div id="realtimeDashboard" class="screen">
+            <div class="header">
+                <h1>Real-time Supply Chain</h1>
+                <button id="realtimeLogoutBtn" class="btn btn-secondary">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+            
+            <div class="container">
+                <div class="realtime-stats">
+                    <div class="stat-card">
+                        <i class="fas fa-seedling"></i>
+                        <h3 id="totalHarvests">0</h3>
+                        <p>Total Harvests</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-flask"></i>
+                        <h3 id="totalTests">0</h3>
+                        <p>Tests Completed</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-industry"></i>
+                        <h3 id="totalBatches">0</h3>
+                        <p>Processing Batches</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-chart-line"></i>
+                        <h3 id="totalHerbs">0</h3>
+                        <p>Total Herbs</p>
+                    </div>
+                </div>
+                
+                <div class="supply-chain-tracking">
+                    <h2><i class="fas fa-link"></i> Supply Chain Tracking</h2>
+                    <div class="tracking-controls">
+                        <button id="refreshSupplyChain" class="btn btn-primary">
+                            <i class="fas fa-sync"></i> Refresh
+                        </button>
+                        <button id="toggleAutoRefresh" class="btn btn-secondary">
+                            <i class="fas fa-play"></i> Auto Refresh
+                        </button>
+                    </div>
+                    <div id="supplyChainList" class="supply-chain-list">
+                        <!-- Supply chain items will be populated here -->
+                    </div>
+                </div>
+                
+                <div class="realtime-activity">
+                    <h2><i class="fas fa-broadcast-tower"></i> Live Activity Feed</h2>
+                    <div id="activityFeed" class="activity-feed">
+                        <!-- Real-time activity will be populated here -->
+                    </div>
+                </div>
+                
+                <div class="realtime-controls">
+                    <button id="startRealtimeBtn" class="btn btn-primary">
+                        <i class="fas fa-play"></i> Start Real-time Updates
+                    </button>
+                    <button id="stopRealtimeBtn" class="btn btn-secondary">
+                        <i class="fas fa-stop"></i> Stop Updates
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Farmer Login Screen -->
+        <div id="farmerLoginScreen" class="screen">
+            <div class="container">
+                <div class="logo">
+                    <i class="fas fa-seedling"></i>
+                    <h1>Farmer Login</h1>
+                    <p>Access your farming dashboard</p>
+                </div>
+                
+                <div class="login-card">
+                    <div class="login-header">
+                        <h2>Welcome Back, Farmer!</h2>
+                        <p>Sign in to manage your harvests and crops</p>
+                    </div>
+                    
+                    <form id="farmerLoginForm" class="login-form">
+                        <div class="input-group">
+                            <div class="input-wrapper">
+                                <i class="fas fa-envelope"></i>
+                                <input type="email" id="farmerEmail" placeholder="Email address" required>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <div class="input-wrapper">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="farmerPassword" placeholder="Password" required>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Sign In
+                        </button>
+                    </form>
+                    
+                    <div class="login-footer">
+                        <button type="button" class="btn btn-secondary" onclick="showRoleSelection()">
+                            <i class="fas fa-arrow-left"></i>
+                            Back to Role Selection
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard -->
+        <div id="dashboardScreen" class="screen">
+            <div class="header">
+                <h1>Farmer Dashboard</h1>
+                <button id="farmerLogoutBtn" class="btn btn-secondary">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="card" onclick="showScreen('harvestScreen')">
+                    <i class="fas fa-seedling"></i>
+                    <h3>New Harvest</h3>
+                    <p>Record herb harvest</p>
+                </div>
+                
+                <div class="card" onclick="showScreen('harvestHistoryScreen')">
+                    <i class="fas fa-history"></i>
+                    <h3>Harvest History</h3>
+                    <p>View past harvests</p>
+                </div>
+                
+                <div class="card" onclick="showScreen('locationScreen')">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <h3>GPS Location</h3>
+                    <p>Capture location</p>
+                </div>
+                
+                <div class="card" onclick="showScreen('profileScreen')">
+                    <i class="fas fa-user"></i>
+                    <h3>Profile</h3>
+                    <p>Manage account</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Harvest Entry Screen -->
+        <div id="harvestScreen" class="screen">
+            <div class="header">
+                <button onclick="showScreen('dashboardScreen')" class="btn btn-back">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h1>New Harvest</h1>
+            </div>
+            
+            <form id="harvestForm" class="form">
+                <div class="form-group">
+                    <label>Herb Species</label>
+                    <select id="species" required>
+                        <option value="">Select Species</option>
+                        <option value="tulsi">Tulsi (Holy Basil)</option>
+                        <option value="ashwagandha">Ashwagandha</option>
+                        <option value="turmeric">Turmeric</option>
+                        <option value="ginger">Ginger</option>
+                        <option value="neem">Neem</option>
+                        <option value="aloe-vera">Aloe Vera</option>
+                        <option value="mint">Mint</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Variety (Optional)</label>
+                    <input type="text" id="variety" placeholder="Enter variety">
+                </div>
+                
+                <div class="form-group">
+                    <label>Quantity</label>
+                    <div class="input-with-unit">
+                        <input type="number" id="quantity" step="0.01" required>
+                        <select id="unit">
+                            <option value="kg">kg</option>
+                            <option value="g">g</option>
+                            <option value="lbs">lbs</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Harvest Date</label>
+                    <input type="date" id="harvestDate" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Location</label>
+                    <button type="button" id="getLocationBtn" class="btn btn-secondary">
+                        <i class="fas fa-map-marker-alt"></i> Get Current Location
+                    </button>
+                    <div id="locationDisplay" class="location-display hidden">
+                        <p><strong>Coordinates:</strong> <span id="coordinates"></span></p>
+                        <p><strong>Address:</strong> <span id="address"></span></p>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Photo</label>
+                    <input type="file" id="photo" accept="image/*" capture="environment">
+                    <div id="photoPreview" class="photo-preview hidden">
+                        <img id="previewImg" src="" alt="Preview">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="notes" rows="3" placeholder="Additional notes about the harvest"></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Submit Harvest</button>
+            </form>
+        </div>
+
+        <!-- Harvest History Screen -->
+        <div id="harvestHistoryScreen" class="screen">
+            <div class="header">
+                <button onclick="showScreen('dashboardScreen')" class="btn btn-back">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h1>Harvest History</h1>
+            </div>
+            
+            <div id="harvestList" class="harvest-list">
+                <!-- Harvest items will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Location Screen -->
+        <div id="locationScreen" class="screen">
+            <div class="header">
+                <button onclick="showScreen('dashboardScreen')" class="btn btn-back">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h1>GPS Location</h1>
+            </div>
+            
+            <div class="location-content">
+                <div id="map" class="map-container">
+                    <p>Loading map...</p>
+                </div>
+                <div class="location-info">
+                    <h3>Current Location</h3>
+                    <p><strong>Latitude:</strong> <span id="currentLat">-</span></p>
+                    <p><strong>Longitude:</strong> <span id="currentLng">-</span></p>
+                    <p><strong>Accuracy:</strong> <span id="accuracy">-</span> meters</p>
+                    <button id="updateLocationBtn" class="btn btn-primary">Update Location</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Screen -->
+        <div id="profileScreen" class="screen">
+            <div class="header">
+                <button onclick="showScreen('dashboardScreen')" class="btn btn-back">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h1>Profile</h1>
+            </div>
+            
+            <div class="profile-content">
+                <div class="profile-info">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h2 id="profileName">-</h2>
+                    <p id="profileEmail">-</p>
+                    <p id="profilePhone">-</p>
+                </div>
+                
+                <div class="profile-stats">
+                    <div class="stat">
+                        <h3 id="totalHarvests">0</h3>
+                        <p>Total Harvests</p>
+                    </div>
+                    <div class="stat">
+                        <h3 id="totalQuantity">0</h3>
+                        <p>Total Quantity (kg)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+
+
