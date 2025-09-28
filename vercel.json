@@ -9,6 +9,7 @@
     { "src": "mobile-app/index.html", "use": "@vercel/static" }
   ],
   "routes": [
+    { "src": "/", "dest": "index.html" },
     { "src": "/api/(.*)", "dest": "server.js" },
     { "src": "/processing-facility/(.*)", "dest": "processing-facility/$1" },
     { "src": "/lab-dashboard/(.*)", "dest": "lab-dashboard/$1" },
