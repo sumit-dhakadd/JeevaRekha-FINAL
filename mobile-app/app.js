@@ -6,7 +6,7 @@ let socket = null;
 let realtimeActive = false;
 
 // API base URL
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = '/api';
 
 // Role configurations
 const roleConfigs = {
@@ -277,7 +277,7 @@ function handleLogout() {
         // Disconnect WebSocket if connected
         if (socket) {
             socket.disconnect();
-            socket = null;
+        const API_BASE = '/api';
         }
         
         // Show success message
