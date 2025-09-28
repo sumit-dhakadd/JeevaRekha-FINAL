@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "server.js", "use": "@vercel/node" },
+    { "src": "processing-facility/index.html", "use": "@vercel/static" },
+    { "src": "lab-dashboard/index.html", "use": "@vercel/static" },
+    { "src": "consumer-app/index.html", "use": "@vercel/static" },
+    { "src": "supply-chain-dashboard/index.html", "use": "@vercel/static" },
+    { "src": "mobile-app/index.html", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "server.js" },
+    { "src": "/processing-facility/(.*)", "dest": "processing-facility/$1" },
+    { "src": "/lab-dashboard/(.*)", "dest": "lab-dashboard/$1" },
+    { "src": "/consumer-app/(.*)", "dest": "consumer-app/$1" },
+    { "src": "/supply-chain-dashboard/(.*)", "dest": "supply-chain-dashboard/$1" },
+    { "src": "/mobile-app/(.*)", "dest": "mobile-app/$1" }
+  ]
+}
