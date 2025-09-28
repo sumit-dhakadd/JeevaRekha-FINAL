@@ -8,9 +8,7 @@
     "dev": "nodemon server.js",
     "setup": "node setup.js",
     "check-mongodb": "node check-mongodb.js",
-    "build": "npm run build:mobile && npm run build:web",
-    "build:mobile": "cd mobile-app && npm run build",
-    "build:web": "cd web-dashboard && npm run build"
+  "build": "echo 'No build step required for Vercel static deployment'"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
